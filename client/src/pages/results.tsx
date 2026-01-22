@@ -190,11 +190,7 @@ export default function Results() {
               {quizQuestions.map((question, index) => {
                 const userAnswer = answers[index] || "(No answer)";
                 const isCorrectVisible = answersRevealed;
-                const isCorrect =
-                  answersRevealed &&
-                  (question.correctAnswer.toLowerCase().includes(userAnswer.toLowerCase()) ||
-                    userAnswer.toLowerCase().includes(question.correctAnswer.toLowerCase()) ||
-                    userAnswer.toLowerCase() === question.correctAnswer.toLowerCase());
+                const isCorrect = answersRevealed && userAnswer === question.correctAnswer;
 
                 return (
                   <div

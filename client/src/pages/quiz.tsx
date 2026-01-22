@@ -2,16 +2,15 @@ import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Clock, ArrowRight, CheckCircle2 } from "lucide-react";
-import { quizQuestions } from "@shared/schema";
+import { quizQuestions, shuffleArray } from "@shared/schema";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-const TIMER_DURATION = 20;
+const TIMER_DURATION = 10;
 
 export default function Quiz() {
   const [, setLocation] = useLocation();
@@ -49,9 +48,8 @@ export default function Quiz() {
   const calculateScore = useCallback(() => {
     let score = 0;
     answers.forEach((answer, index) => {
-      const correctAnswer = quizQuestions[index].correctAnswer.toLowerCase().trim();
-      const userAnswer = answer.toLowerCase().trim();
-      if (correctAnswer.includes(userAnswer) || userAnswer.includes(correctAnswer) || userAnswer === correctAnswer) {
+      const correctAnswer = quizQuestions[index].correctAnswer;
+      if (answer === correctAnswer) {
         score++;
       }
     });
@@ -108,12 +106,6 @@ export default function Quiz() {
     moveToNextQuestion();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleNext();
-    }
-  };
-
   if (!playerName) {
     return null;
   }
@@ -160,28 +152,28 @@ export default function Quiz() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            <div className="relative">
-              <div 
-                className="absolute bottom-0 left-0 h-1 bg-primary/20 rounded-full transition-all duration-1000"
-                style={{ width: `${timerPercentage}%` }}
-              />
-              <Input
-                data-testid={`input-answer-${currentQuestion + 1}`}
-                placeholder="Type your answer here..."
-                value={answers[currentQuestion]}
-                onChange={(e) => handleAnswerChange(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="text-lg h-14 pr-4"
-                autoFocus
-              />
+            <div className="space-y-3">
+              {question.options?.map((option, optionIndex) => (
+                <button
+                  key={optionIndex}
+                  onClick={() => handleAnswerChange(option)}
+                  className={`w-full p-4 rounded-lg border-2 transition-all text-left font-medium ${
+                    answers[currentQuestion] === option
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/50"
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 pt-4">
               <Button
                 data-testid="button-next-question"
                 onClick={handleNext}
                 className="flex-1 h-12 text-lg"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !answers[currentQuestion]}
               >
                 {isSubmitting ? (
                   "Submitting..."
