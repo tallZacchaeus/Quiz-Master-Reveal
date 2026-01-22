@@ -3,15 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Shield, Eye, EyeOff, Users, Trophy, Trash2, RefreshCw } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Shield, Eye, EyeOff, Users, Trophy, Trash2, RefreshCw, Lock, LockOpen } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 import type { QuizResult, AppSettings } from "@shared/schema";
 import { quizQuestions } from "@shared/schema";
 
+const ADMIN_CODE = "890456";
+
 export default function Admin() {
   const { toast } = useToast();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [code, setCode] = useState("");
 
   const { data: settings, isLoading: settingsLoading } = useQuery<AppSettings>({
     queryKey: ["/api/settings"],
@@ -75,23 +81,92 @@ export default function Admin() {
     }
   };
 
+  const handleAuthSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (code === ADMIN_CODE) {
+      setIsAuthenticated(true);
+      setCode("");
+      toast({
+        title: "Access Granted",
+        description: "Welcome to the admin panel!",
+      });
+    } else {
+      setCode("");
+      toast({
+        title: "Invalid Code",
+        description: "The code you entered is incorrect. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const totalParticipants = results?.length || 0;
   const averageScore = results && results.length > 0
     ? Math.round((results.reduce((sum, r) => sum + r.score, 0) / results.length) * 10) / 10
     : 0;
   const perfectScores = results?.filter(r => r.score === quizQuestions.length).length || 0;
 
+  // Authentication screen
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
+                <Lock className="w-8 h-8 text-primary" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl">Admin Access</CardTitle>
+            <CardDescription>Enter the admin code to continue</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAuthSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="admin-code">Admin Code</Label>
+                <Input
+                  id="admin-code"
+                  type="password"
+                  placeholder="Enter code"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  autoFocus
+                  className="text-lg tracking-widest"
+                />
+              </div>
+              <Button type="submit" className="w-full" size="lg">
+                <LockOpen className="w-4 h-4 mr-2" />
+                Unlock Admin Panel
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Admin dashboard
   return (
     <div className="min-h-screen p-4 bg-gradient-to-br from-background via-background to-primary/5">
       <div className="max-w-6xl mx-auto py-8">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
-            <Shield className="w-6 h-6 text-primary" />
+        <div className="flex items-center justify-between gap-3 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
+              <Shield className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Admin Panel</h1>
+              <p className="text-muted-foreground">Manage the quiz and view results</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Admin Panel</h1>
-            <p className="text-muted-foreground">Manage the quiz and view results</p>
-          </div>
+          <Button 
+            variant="outline" 
+            onClick={() => setIsAuthenticated(false)}
+            className="gap-2"
+          >
+            <Lock className="w-4 h-4" />
+            Logout
+          </Button>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3 mb-6">

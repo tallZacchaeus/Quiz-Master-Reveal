@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#1a1a2e" stroke="#00d4ff" stroke-width="2"/>
+  
+  <!-- Quiz icon - stylized Q -->
+  <g transform="translate(50, 60)">
+    <!-- Q shape -->
+    <path d="M 30 10 A 20 20 0 0 0 10 30 A 20 20 0 0 0 30 50 A 20 20 0 0 0 50 30 A 20 20 0 0 0 30 10" 
+          fill="none" stroke="#00d4ff" stroke-width="3" stroke-linecap="round"/>
+    <!-- Q tail -->
+    <line x1="45" y1="40" x2="60" y2="70" stroke="#00d4ff" stroke-width="3" stroke-linecap="round"/>
+    <!-- Checkmark inside -->
+    <polyline points="20,30 25,35 35,20" fill="none" stroke="#00ff00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
