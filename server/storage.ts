@@ -1,37 +1,51 @@
-import { type User, type InsertUser } from "@shared/schema";
+import { type QuizResult, type AppSettings, quizQuestions } from "@shared/schema";
 import { randomUUID } from "crypto";
 
-// modify the interface with any CRUD methods
-// you might need
-
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getSettings(): Promise<AppSettings>;
+  setAnswersRevealed(revealed: boolean): Promise<void>;
+  addResult(result: Omit<QuizResult, "id">): Promise<QuizResult>;
+  getResults(): Promise<QuizResult[]>;
+  getLeaderboard(): Promise<QuizResult[]>;
+  clearResults(): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private settings: AppSettings;
+  private results: Map<string, QuizResult>;
 
   constructor() {
-    this.users = new Map();
+    this.settings = { answersRevealed: false };
+    this.results = new Map();
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getSettings(): Promise<AppSettings> {
+    return this.settings;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async setAnswersRevealed(revealed: boolean): Promise<void> {
+    this.settings.answersRevealed = revealed;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async addResult(result: Omit<QuizResult, "id">): Promise<QuizResult> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const quizResult: QuizResult = { ...result, id };
+    this.results.set(id, quizResult);
+    return quizResult;
+  }
+
+  async getResults(): Promise<QuizResult[]> {
+    return Array.from(this.results.values()).sort((a, b) => b.score - a.score);
+  }
+
+  async getLeaderboard(): Promise<QuizResult[]> {
+    return Array.from(this.results.values())
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
+  }
+
+  async clearResults(): Promise<void> {
+    this.results.clear();
   }
 }
 
