@@ -78,13 +78,13 @@ export const quizQuestions: Question[] = [
   },
   {
     id: 6,
-    question: 'What is the name of the pastor who usually says, "Oh my God, oh my God, hear this, hear this"?',
+    question: 'What is the name of the pastor who usually says, "Oh my God!, oh my God!, hear this, hear this"?',
     correctAnswer: "Prophet Shina Oladimeji",
     options: ["Prophet Sina Oladimeji", "Prophet Shina Oladele", "Prophet Shina Oladimeji", "Prophet Shina Oladeji"],
   },
   {
     id: 7,
-    question: "Which family produced GVIM's first ground baby?",
+    question: "Which family produced GVIM's first grand baby?",
     correctAnswer: "Sis Ajibike's family",
     options: ["Sis Ajoke's family", "Sis Abike's family", "Sis Ajibike's family", "Sis Ajibola's family"],
   },
